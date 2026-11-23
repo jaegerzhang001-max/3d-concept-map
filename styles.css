@@ -3,7 +3,7 @@
 .cmap-bar button:hover{background:var(--background-secondary);color:var(--text-normal)}
 .cmap-svg{width:100%;height:700px;border:1px solid var(--background-modifier-border);border-radius:10px;touch-action:none;
   background:var(--background-primary)}
-.cmap-svg:fullscreen{width:100vw!important;height:100vh!important;border-radius:0;border:none}
+.cmap-svg:fullscreen{width:100vw;height:100vh;border-radius:0;border:none}
 .cmap-rel{font-size:10px;fill:#6b7f99;paint-order:stroke;stroke:var(--background-primary);stroke-width:3px;pointer-events:none;font-weight:500}
 .cmap-label{font-size:11.5px;fill:#2c3e50;paint-order:stroke;stroke:var(--background-primary);stroke-width:3px;pointer-events:none;font-weight:600;letter-spacing:.2px}
 .cmap-st{font-size:10.5px;fill:#c2703a;pointer-events:none;font-weight:600}

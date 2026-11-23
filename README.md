@@ -1,69 +1,79 @@
 # 3D Concept Map
 
-把笔记变成立体概念网络：写 `cmap` 代码块就能得到可交互的 3D 图；点一下按钮，插件还能扫描全库、生成概念页与索引。
+Turn your vault into an interactive 3D concept network. Write `cmap` blocks to get a rotatable, zoomable concept graph, and use the built-in builder to turn your notes into concept pages.
 
 ![demo](assets/demo.png)
 
-## ✨ 功能
+## Installation
 
-- **3D 概念网络**：球面投影 + 力导向布局，自动缓慢旋转
-- **点选聚焦**：点击概念，只保留它两跳内的邻居，其余隐去
-- **点击下钻**：概念图 → 笔记 → 全库搜索
-- **概念构建器**：扫描全库 cmap，生成概念页与概念索引（无需外部程序）
-- **自动归类**：未入网的笔记按「标题命中已有概念」或「文件夹→概念」规则挂接
-- **设置面板**：节点大小、连词显示、自动旋转、分类规则
+### From the community directory
+1. Open **Settings → Community plugins** and turn off Restricted mode.
+2. Click **Browse** and search for **3D Concept Map**.
+3. Click **Install**, then **Enable**.
 
-## 📦 安装
+### Manual
+1. Download `main.js`, `manifest.json`, and `styles.css` from the latest release.
+2. Put them in `.obsidian/plugins/three-d-concept-map/`.
+3. Reload Obsidian and enable the plugin in **Community plugins**.
 
-### BRAT（推荐，可跟踪更新）
-1. 安装 BRAT 插件
-2. 命令面板 → `BRAT: Add a beta plugin`
-3. 填 `Jäger/3d-concept-map`
+### BRAT (beta)
+1. Install the **BRAT** plugin.
+2. Run `BRAT: Add a beta plugin` and enter `jaegerzhang001-max/3d-concept-map`.
 
-### 手动
-下载 release 里的 `main.js` / `manifest.json` / `styles.css`，放进：
-`.obsidian/plugins/concept-map-3d/`，重启后在「社区插件」启用。
+## Usage
 
-## 🧠 语法
+Write a `cmap` code block in any note:
 
-````md
 ```cmap
-[L1]语言 --分语种--> 日语、德语、韩语
-[L2]说 --需要--> 语音、语块
-[L3]语块 --支撑--> [L2]说
+[L1]Language --split into--> Japanese, German, Korean
+[L2]Speaking --needs--> phonetics, chunks
+[L3]Chunks --support--> [L2]Speaking
 ```
-````
 
-| 写法 | 含义 |
+Syntax:
+
+| Syntax | Meaning |
 |---|---|
-| `[L1]` `[L2]` `[L3]` | 层级：决定圆球大小与颜色 |
-| `A --连词--> B、C、D` | 一对多：自动生成中间「站」，扇形分叉 |
-| `A --连词--> B` | 一对一：直接连线 |
+| `[L1]` `[L2]` `[L3]` | Level, controls node size and color |
+| `A --relation--> B, C` | One-to-many, rendered as a fan-out with a labeled station |
+| `A --relation--> B` | Direct relation |
 
-## 🖱 交互
+Interactions:
 
-| 操作 | 效果 |
+| Action | Result |
 |---|---|
-| 点击概念 | 聚焦该概念与两跳邻居 |
-| 点空白 / ✕ | 恢复全图 |
-| 左键拖动 | 旋转 |
-| 右键 / Shift 拖动 | 平移 |
-| 滚轮 | 缩放 |
-| 重置 / 全屏 | 复位 / 铺满窗口 |
+| Click a node | Focus it and its two-hop neighbors |
+| Click empty space | Restore the full graph |
+| Drag (left) | Rotate the sphere |
+| Drag (right / Shift) | Pan |
+| Wheel | Zoom |
+| Reset / Fullscreen | Reset the view / fill the window |
 
-## 🏗 构建概念网络
+## Building a concept network
 
-1. 设置 → 3D Concept Map → 填「分类规则」（每行 `文件夹=概念`）
-2. 点左侧工具栏「构建概念网络」或命令面板同名命令
-3. 插件会生成 `概念/xxx.md` 与 `概念索引.md`
+1. Go to **Settings → 3D Concept Map** and set **Classification rules** (`folder=concept`, one per line).
+2. Click the **Build concept network** ribbon icon, or run the command with the same name.
+3. The plugin creates `Concept/<name>.md` pages and a `Concept index.md`.
 
-## 🗺 路线图
+## Settings
 
-- [x] 3D 渲染与交互
-- [x] 概念页生成（纯 JS）
-- [ ] 自定义层级名称（L1–L4 显示为你自己的术语）
-- [ ] 社区市场上架
+- Concept folder
+- Node size
+- Show relation labels
+- Auto-rotate
+- Auto-link notes that are not in the network yet
+- Classification rules
 
-## 许可证
+## 中文说明
+
+把 `cmap` 代码块渲染成可交互的 3D 概念网络；内置构建器可扫描全库生成概念页与概念索引。
+
+安装：设置 → 第三方插件 → 浏览 → 搜索 **3D Concept Map** → 安装 → 启用。
+
+用法：在笔记中写 `cmap` 代码块（见上表语法），即可得到 3D 图；点节点聚焦、拖动旋转、右键平移、滚轮缩放。
+
+构建概念网络：设置里填 `文件夹=概念` 的分类规则，点左侧「构建概念网络」图标。
+
+## License
 
 MIT © Jäger Zhang
