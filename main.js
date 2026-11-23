@@ -3,10 +3,10 @@ const NS='http://www.w3.org/2000/svg';
 const R={1:16,2:10,3:7};
 class Graph{
   constructor(el,triples,app){
-    this.el=el; this.app=app; this.mode='3d'; this.scale=1; this.tx=0; this.ty=0;
+    this.el=el; this.app=app; this.mode='3d'; this.scale=0.72; this.tx=0; this.ty=0;
     this.yaw=.3; this.pitch=.2; this.spin=true;
     this.nodes=[]; this.edges=[]; this.stations=[];
-    this.build(triples); this.ui(); this.layout(); this.sphere(); this.render(); this.loop();
+    this.build(triples); this.ui(); this.layout(); this.sphere(); this.render(); requestAnimationFrame(()=>this.render()); setTimeout(()=>this.render(),250); this.loop();
   }
   build(ts){
     const map=new Map(), nodes=this.nodes;
@@ -36,10 +36,10 @@ class Graph{
       '<filter id="cs" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#1d3557" flood-opacity="0.18"/></filter>';
     this.svg.appendChild(defs);
     this.g=document.createElementNS(NS,'g'); this.svg.appendChild(this.g); this.el.appendChild(this.svg);
-    bx.onclick=()=>{ if(document.fullscreenElement){document.exitFullscreen();} else { this.svg.requestFullscreen().then(()=>{this.scale=1;this.tx=0;this.ty=0;setTimeout(()=>this.render(),120);}).catch(()=>{}); } };
+    bx.onclick=()=>{ if(document.fullscreenElement){document.exitFullscreen();} else { this.svg.requestFullscreen().then(()=>{this.scale=0.72;this.tx=0;this.ty=0;setTimeout(()=>this.render(),120);}).catch(()=>{}); } };
     b2.onclick=()=>{this.mode='2d';this.render();};
     b3.onclick=()=>{this.mode='3d';this.sphere();this.render();};
-    bf.onclick=()=>{this.spin=true;this.scale=1;this.tx=0;this.ty=0;this.yaw=.3;this.pitch=.2;this.render();};
+    bf.onclick=()=>{this.spin=true;this.scale=0.72;this.tx=0;this.ty=0;this.yaw=.3;this.pitch=.2;this.render();};
     this.svg.addEventListener('wheel',e=>{e.preventDefault();this.scale*=e.deltaY>0?.92:1.08;this.render();},{passive:false});
     let d=null;
     this.svg.addEventListener('contextmenu',e=>e.preventDefault());
