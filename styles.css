@@ -1,0 +1,14 @@
+.cmap-bar{display:flex;gap:8px;margin:8px 0}
+.cmap-bar button{font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--background-modifier-border);background:var(--background-primary);color:var(--text-muted);cursor:pointer;transition:.15s}
+.cmap-bar button:hover{background:var(--background-secondary);color:var(--text-normal)}
+.cmap-svg{width:100%;height:700px;border:1px solid var(--background-modifier-border);border-radius:10px;touch-action:none;
+  background:var(--background-primary)}
+.cmap-svg:fullscreen{width:100vw!important;height:100vh!important;border-radius:0;border:none}
+.cmap-rel{font-size:10px;fill:#6b7f99;paint-order:stroke;stroke:var(--background-primary);stroke-width:3px;pointer-events:none;font-weight:500}
+.cmap-label{font-size:11.5px;fill:#2c3e50;paint-order:stroke;stroke:var(--background-primary);stroke-width:3px;pointer-events:none;font-weight:600;letter-spacing:.2px}
+.cmap-st{font-size:10.5px;fill:#c2703a;pointer-events:none;font-weight:600}
+.cmap-node{transition:r .15s, opacity .15s}
+.cmap-node:hover{r:18;opacity:1}
+.cmap-selbar{display:flex;gap:8px;align-items:center;margin-top:8px;padding:6px 10px;border:1px solid var(--background-modifier-border);border-radius:8px}
+.cmap-selbar .cmap-selname{font-size:13px;font-weight:600;margin-right:6px}
+.cmap-selbar button{font-size:12px;padding:3px 10px;border-radius:6px;border:1px solid var(--background-modifier-border);background:var(--background-primary);cursor:pointer}
