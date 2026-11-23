@@ -1,5 +1,15 @@
 # 3D Concept Map
 
+**中文简介**：把 Obsidian 笔记变成立体概念网络的插件。在任意笔记里写 `cmap` 代码块，就能得到一张可旋转、可缩放、可点开的 3D 知识图谱；再点一下「构建概念网络」，插件会扫描全库、自动生成概念页与概念索引。
+
+- 安装：设置 → 第三方插件 → 浏览 → 搜索 **3D Concept Map**（或用 BRAT 填 `jaegerzhang001-max/3d-concept-map`）
+- 用法：写 `cmap` 代码块 → 点节点聚焦 → 拖动旋转 → 右键平移
+- 构建：设置里填分类规则（`文件夹=概念`），点左侧「构建概念网络」
+
+![demo](assets/demo.png)
+
+---
+
 Turn your vault into an interactive 3D concept network. Write `cmap` blocks to get a rotatable, zoomable concept graph, and use the built-in builder to turn your notes into concept pages.
 
 ![demo](assets/demo.png)
