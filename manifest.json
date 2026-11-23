@@ -5,5 +5,6 @@
   "minAppVersion": "1.5.0",
   "description": "Turn your vault into an interactive 3D concept network: render cmap blocks and build concept pages from your notes.",
   "author": "Jäger Zhang",
-  "isDesktopOnly": false
+  "isDesktopOnly": false,
+  "authorUrl": "https://github.com/jaegerzhang001-max"
 }
