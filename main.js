@@ -1,16 +1,29 @@
 const { Plugin, MarkdownRenderChild, PluginSettingTab, Setting } = require('obsidian');
 const NS='http://www.w3.org/2000/svg';
-const R={1:16,2:10,3:7};
+const R={1:18,2:14,3:10,4:7,5:5};
+const LVCOL={1:'#2f5d8a',2:'#4a7bb0',3:'#7aa7d0',4:'#a8c6e2',5:'#d5e5f5'};
+const DEFLEVELS=['一般人类思维','学科大图景','主题','概念','事实'];
 class Graph{
   constructor(el,triples,app){
     this.el=el; this.app=app; this.mode='3d'; this.scale=0.72; this.tx=0; this.ty=0;
     this.yaw=.3; this.pitch=.2; this.spin=true;
     this.nodes=[]; this.edges=[]; this.stations=[];
-    this.build(triples); this.ui(); this.layout(); this.sphere(); this.render(); requestAnimationFrame(()=>this.render()); setTimeout(()=>this.render(),250); this.loop();
+    this.build(triples); this.ui(); this.layout(); this.sphere(); this.render(); this.drawLegend(); requestAnimationFrame(()=>this.render()); setTimeout(()=>this.render(),250); this.loop();
+  }
+  drawLegend(){
+    if(!this.lg) return;
+    const names=(this.settings&&this.settings.levelNames)||DEFLEVELS;
+    this.lg.innerHTML='';
+    for(let i=1;i<=5;i++){
+      const item=document.createElement('span'); item.className='cmap-lg-item';
+      const dot=document.createElement('i'); dot.style.background=LVCOL[i]; dot.style.width=(4+i*2)+'px'; dot.style.height=(4+i*2)+'px';
+      const txt=document.createElement('span'); txt.textContent=(names[i-1]||('L'+i));
+      item.append(dot,txt); this.lg.appendChild(item);
+    }
   }
   build(ts){
     const map=new Map(), nodes=this.nodes;
-    const add=(t)=>{ let m=t.match(/^\[L(\d)\]\s*(.+)$/); let id=m?m[2]:t, lv=m?+m[1]:3;
+    const add=(t)=>{ let m=t.match(/^\[L(\d)\]\s*(.+)$/); let id=m?m[2]:t, lv=Math.min(5,Math.max(1,m?+m[1]:3));
       if(!map.has(id)){ const o={id,lv,kind:'c',x:Math.random()*400-200,y:Math.random()*300-150,vx:0,vy:0}; map.set(id,o); nodes.push(o);} return map.get(id); };
     for(const [a,r,b] of ts){
       const A=add(a); const targets=b.split(/[、,，]\s*/).map(s=>s.trim()).filter(Boolean).map(add);
@@ -36,6 +49,7 @@ class Graph{
       '<filter id="cs" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#1d3557" flood-opacity="0.18"/></filter>';
     this.svg.appendChild(defs);
     this.g=document.createElementNS(NS,'g'); this.svg.appendChild(this.g); this.el.appendChild(this.svg);
+    const lg=document.createElement('div'); lg.className='cmap-legend'; this.el.appendChild(lg); this.lg=lg;
     bx.onclick=()=>{ if(document.fullscreenElement){document.exitFullscreen();} else { this.svg.requestFullscreen().then(()=>{this.scale=0.72;this.tx=0;this.ty=0;setTimeout(()=>this.render(),120);}).catch(()=>{}); } };
     b2.onclick=()=>{this.mode='2d';this.render();};
     b3.onclick=()=>{this.mode='3d';this.sphere();this.render();};
@@ -138,7 +152,7 @@ class Graph{
         const t=mk('text',{x:p.x,y:p.y-6,'text-anchor':'middle',class:'cmap-st'}); t.textContent=n.label; this.g.appendChild(t);
         continue;
       }
-      const c=mk('circle',{cx:p.x,cy:p.y,r:R[n.lv]||8,fill:n.lv===3?'#a8c6e2':'#4f7fae',stroke:'#ffffff','stroke-width':1.2,'data-note':n.id,class:'cmap-node'});
+      const c=mk('circle',{cx:p.x,cy:p.y,r:R[n.lv]||8,fill:LVCOL[n.lv]||'#a8c6e2',stroke:'#ffffff','stroke-width':1.2,'data-note':n.id,class:'cmap-node'});
       c.setAttribute('opacity', hov?(near.has(n.id)?1:0.12):1);
       c.addEventListener('mouseenter',()=>{ if(this.hover!==n.id){ this.hover=n.id; this.hoverPaint(); } });
       c.addEventListener('mouseleave',()=>{ if(this.hover!==null){ this.hover=null; this.hoverPaint(); } });
@@ -249,7 +263,7 @@ const safeName=(n)=>n.replace(/[\\/:*?"<>|]/g,'-').slice(0,60);
 
 class CMPlugin extends Plugin{
   async onload(){
-    this.settings=Object.assign({nodeSize:1,showRel:true,autoSpin:true,libFolder:'概念库',autoLink:true,map:''}, await this.loadData());
+    this.settings=Object.assign({nodeSize:1,showRel:true,autoSpin:true,libFolder:'概念库',autoLink:true,map:'',levelNames:DEFLEVELS.slice()}, await this.loadData());
     this.addSettingTab(new CMSettingTab(this));
     this.addRibbonIcon('network','构建概念网络',()=>this.buildNetwork());
     this.addCommand({id:'build-concept-network',name:'构建概念网络',callback:()=>this.buildNetwork()});
@@ -337,6 +351,10 @@ class CMSettingTab extends PluginSettingTab{
     new Setting(containerEl).setName('显示连词').addToggle(t=>t.setValue(this.plugin.settings.showRel).onChange(async v=>{this.plugin.settings.showRel=v; await this.plugin.saveSettings();}));
     new Setting(containerEl).setName('自动旋转').addToggle(t=>t.setValue(this.plugin.settings.autoSpin).onChange(async v=>{this.plugin.settings.autoSpin=v; await this.plugin.saveSettings();}));
     new Setting(containerEl).setName('自动关联未归类笔记').setDesc('按文件夹或标题匹配已有概念').addToggle(t=>t.setValue(this.plugin.settings.autoLink).onChange(async v=>{this.plugin.settings.autoLink=v; await this.plugin.saveSettings();}));
+    const lvNames=(this.plugin.settings.levelNames||DEFLEVELS).slice();
+    for(let i=1;i<=5;i++){
+      new Setting(containerEl).setName('L'+i+' 名称').addText(t=>t.setValue(lvNames[i-1]||'').onChange(async v=>{ lvNames[i-1]=v; this.plugin.settings.levelNames=lvNames.slice(); await this.plugin.saveSettings(); }));
+    }
     new Setting(containerEl).setName('分类规则').setDesc('每行一条：文件夹=概念，例如 明亮=明亮那方').addTextArea(t=>{t.setValue(this.plugin.settings.map||'').setPlaceholder('明亮=明亮那方\n한국어=韩语'); t.inputEl.rows=6; t.onChange(async v=>{this.plugin.settings.map=v; await this.plugin.saveSettings();});});
   }
 }
