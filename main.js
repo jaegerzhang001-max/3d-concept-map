@@ -2,7 +2,7 @@ const { Plugin, MarkdownRenderChild, PluginSettingTab, Setting } = require('obsi
 const NS='http://www.w3.org/2000/svg';
 const R={1:18,2:14,3:10,4:7,5:5};
 const LVCOL={1:'#2f5d8a',2:'#4a7bb0',3:'#7aa7d0',4:'#a8c6e2',5:'#d5e5f5'};
-const DEFLEVELS=['一般人类思维','学科大图景','主题','概念','事实'];
+const DEFLEVELS=['Level 1','Level 2','Level 3','Level 4','Level 5'];
 class Graph{
   constructor(el,triples,app){
     this.el=el; this.app=app; this.mode='3d'; this.scale=0.72; this.tx=0; this.ty=0;
@@ -13,6 +13,8 @@ class Graph{
   drawLegend(){
     if(!this.lg) return;
     const names=(this.settings&&this.settings.levelNames)||DEFLEVELS;
+    if(!names.some(x=>x&&x.trim())){ this.lg.style.display='none'; return; }
+    this.lg.style.display='flex';
     this.lg.innerHTML='';
     for(let i=1;i<=5;i++){
       const item=document.createElement('span'); item.className='cmap-lg-item';
@@ -263,7 +265,7 @@ const safeName=(n)=>n.replace(/[\\/:*?"<>|]/g,'-').slice(0,60);
 
 class CMPlugin extends Plugin{
   async onload(){
-    this.settings=Object.assign({nodeSize:1,showRel:true,autoSpin:true,libFolder:'System Ⅱ',autoLink:true,map:'',levelNames:DEFLEVELS.slice()}, await this.loadData());
+    this.settings=Object.assign({nodeSize:1,showRel:true,autoSpin:true,libFolder:'Concepts',autoLink:true,map:'',levelNames:DEFLEVELS.slice()}, await this.loadData());
     this.addSettingTab(new CMSettingTab(this));
     const ribbonEl=this.addRibbonIcon('network','构建概念网络',()=>this.buildNetwork());
     setTimeout(()=>this.placeRibbon(ribbonEl), 1500);

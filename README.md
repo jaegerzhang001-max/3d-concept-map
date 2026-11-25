@@ -67,7 +67,7 @@ Interactions:
 
 ## Settings
 
-- Concept folder
+- Concept folder (default `Concepts`)
 - Node size
 - Show relation labels
 - Auto-rotate
