@@ -400,7 +400,7 @@ class CMSettingTab extends PluginSettingTab{
     for(let i=1;i<=5;i++){
       new Setting(containerEl).setName('L'+i+' 名称').addText(t=>t.setValue(lvNames[i-1]||'').onChange(async v=>{ lvNames[i-1]=v; this.plugin.settings.levelNames=lvNames.slice(); await this.plugin.saveSettings(); }));
     }
-    new Setting(containerEl).setName('分类规则').setDesc('每行一条：文件夹=概念，例如 明亮=明亮那方').addTextArea(t=>{t.setValue(this.plugin.settings.map||'').setPlaceholder('明亮=明亮那方\n한국어=韩语'); t.inputEl.rows=6; t.onChange(async v=>{this.plugin.settings.map=v; await this.plugin.saveSettings();});});
+    new Setting(containerEl).setName('分类规则').setDesc('每行一条：文件夹=概念，例如 Journal=每日思考').addTextArea(t=>{t.setValue(this.plugin.settings.map||'').setPlaceholder('Folder=Concept\n例如 Journal=每日思考'); t.inputEl.rows=6; t.onChange(async v=>{this.plugin.settings.map=v; await this.plugin.saveSettings();});});
   }
 }
 module.exports=CMPlugin;
