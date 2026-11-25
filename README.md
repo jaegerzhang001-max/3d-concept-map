@@ -78,15 +78,7 @@ Requires Obsidian **1.5+**. Works on desktop and mobile (3D is heavier on phones
 
 ### 自动生成示例 · What it produces
 
-```
-Concepts/
-├─ 概念索引.md              ← all concepts ranked by connections
-├─ 概念/
-│   ├─ 理解型学习.md        ← 3D 关系图 + 它指向 / 指向它 + 相关笔记
-│   ├─ 学习故事.md
-│   └─ …
-└─ 旧概念/                  ← 已被移除概念的历史页（不删除）
-```
+
 
 每个概念页顶部就是它自己的 3D 图，点图里的球可以一路跳下去：
 
