@@ -78,6 +78,13 @@ Requires Obsidian **1.5+**. Works on desktop and mobile (3D is heavier on phones
 
 ### 自动生成示例 · What it produces
 
+生成物是一个目录（名字由你在设置里指定）：
+
+- `Concept index.md` —— 全部概念，按连接数排序
+- `Concept/<概念名>.md` —— 每个概念一页：顶部是它自己的 3D 图，下面分「它指向」「指向它」「相关笔记」
+- `Old concepts/` —— 已移除概念的历史页（保留，不删除）
+
+
 
 
 每个概念页顶部就是它自己的 3D 图，点图里的球可以一路跳下去：
