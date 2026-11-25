@@ -61,6 +61,11 @@ Requires Obsidian **1.5+**. Works on desktop and mobile (3D is heavier on phones
 
 ## 三、自动生成整个网络 · Auto-build the whole network
 
+**《如何构建自己的概念地图网络》**：手打一段 → 保存渲染 → 一键生成（含 3 帧演示）
+
+![how to build](assets/how-to-build.gif)
+
+
 如果你已经有一堆笔记，不想手写每一条关系：
 
 1. **设置 → 3D Concept Map**
