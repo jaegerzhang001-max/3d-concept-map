@@ -263,9 +263,10 @@ const safeName=(n)=>n.replace(/[\\/:*?"<>|]/g,'-').slice(0,60);
 
 class CMPlugin extends Plugin{
   async onload(){
-    this.settings=Object.assign({nodeSize:1,showRel:true,autoSpin:true,libFolder:'概念库',autoLink:true,map:'',levelNames:DEFLEVELS.slice()}, await this.loadData());
+    this.settings=Object.assign({nodeSize:1,showRel:true,autoSpin:true,libFolder:'System Ⅱ',autoLink:true,map:'',levelNames:DEFLEVELS.slice()}, await this.loadData());
     this.addSettingTab(new CMSettingTab(this));
-    this.addRibbonIcon('network','构建概念网络',()=>this.buildNetwork());
+    const ribbonEl=this.addRibbonIcon('network','构建概念网络',()=>this.buildNetwork());
+    setTimeout(()=>this.placeRibbon(ribbonEl), 1500);
     this.addCommand({id:'build-concept-network',name:'构建概念网络',callback:()=>this.buildNetwork()});
     this.registerMarkdownCodeBlockProcessor('cmap',(src,el,ctx)=>{
       const ts=[];
@@ -278,16 +279,34 @@ class CMPlugin extends Plugin{
       const g=new Graph(el,ts,this.app); g.settings=this.settings; g.render();
     });
   }
+  placeRibbon(el){
+    try{
+      if(!el||!el.parentElement) return;
+      const bar=el.parentElement;
+      const items=[...bar.querySelectorAll('.side-dock-ribbon-action')];
+      const anchor=items.find(x=>{
+        const t=(x.getAttribute('aria-label')||x.getAttribute('data-tooltip-position')||'')+'';
+        return /小米|Minote/i.test(t) || (x.getAttribute('aria-label')||'').includes('小米');
+      }) || items.find(x=>/刷新并同步/.test(x.getAttribute('aria-label')||''));
+      if(anchor && anchor!==el){ anchor.insertAdjacentElement('afterend', el); }
+      else { bar.insertBefore(el, bar.firstChild); }
+    }catch(e){}
+  }
   async saveSettings(){ await this.saveData(this.settings); }
 
   async buildNetwork(){
+    try{ return await this._buildNetwork(); }
+    catch(e){ new Notice('构建失败：'+String(e&&e.message||e).slice(0,80)); console.error('[3d-concept-map]',e); }
+  }
+  async _buildNetwork(){
+    const n0=new Notice('开始构建概念网络…',0);
     const {vault}=this.app, files=vault.getMarkdownFiles();
     const lib=this.settings.libFolder;
     const tri=new Map();
     const add=(s,r,o)=>{ s=strip(s); o=strip(o); if(!s||!o) return; tri.set(s+'|'+r+'|'+o,{s,r,o}); };
     const re=/```cmap\r?\n([\s\S]*?)```/g;
     for(const f of files){
-      if(f.path.startsWith(lib+'/')) continue;
+      if(f.path.startsWith(lib+'/概念/') || f.path.endsWith('概念索引.md')) continue;
       const txt=await vault.cachedRead(f);
       let m; re.lastIndex=0;
       while((m=re.exec(txt))){
@@ -319,18 +338,25 @@ class CMPlugin extends Plugin{
     tri.forEach(t=>{ (byS.get(t.s)||byS.set(t.s,[]).get(t.s)).push(t); (byO.get(t.o)||byO.set(t.o,[]).get(t.o)).push(t); });
     const dir=lib+'/概念';
     if(!(await vault.adapter.exists(dir))) await vault.createFolder(dir);
-    let n=0;
+    let n=0, skippedUser=0;
     for(const c of concepts){
       const outs=(byS.get(c)||[]).slice(0,40), ins=(byO.get(c)||[]).slice(0,40);
-      let body='# '+c+'\n\n> 概念节点 · '+(outs.length+ins.length)+' 条连接\n\n## 关系图\n\n```cmap\n';
+      let body='---\ngenerated_by: three-d-concept-map\n---\n\n# '+c+'\n\n> 概念节点 · '+(outs.length+ins.length)+' 条连接\n\n## 关系图\n\n```cmap\n';
       body+=outs.map(t=>`${c} --${t.r}--> ${t.o}`).join('\n')+'\n';
       body+=ins.map(t=>`${t.s} --${t.r}--> ${c}`).join('\n')+'\n```\n\n';
       if(outs.length) body+='## 它指向\n\n'+outs.map(t=>`- **${t.r}** → [[${t.o}]]`).join('\n')+'\n\n';
       if(ins.length) body+='## 指向它\n\n'+ins.map(t=>`- [[${t.s}]] ← **${t.r}**`).join('\n')+'\n\n';
       const path=dir+'/'+safeName(c)+'.md';
       const exist=vault.getAbstractFileByPath(path);
-      if(exist) await vault.modify(exist, body); else await vault.create(path, body);
+      if(exist){
+        const oldText=await vault.cachedRead(exist);
+        if(!oldText.includes('generated_by: three-d-concept-map')){
+          skippedUser++; continue;   // 不是插件生成的同名文件，绝不覆盖
+        }
+        if(oldText!==body) await vault.modify(exist, body);
+      } else { await vault.create(path, body); }
       n++;
+      if(n%200===0){ n0.setMessage('构建中… '+n+'/'+concepts.size); }
     }
     const deg=[...concepts].map(c=>({c,d:(byS.get(c)||[]).length+(byO.get(c)||[]).length})).sort((a,b)=>b.d-a.d);
     let idx='# 概念索引（'+concepts.size+' 个概念 / '+tri.size+' 条关系）\n\n| 概念 | 连接数 |\n|---|---|\n';
@@ -338,7 +364,24 @@ class CMPlugin extends Plugin{
     const ip=lib+'/概念索引.md';
     const ie=vault.getAbstractFileByPath(ip);
     if(ie) await vault.modify(ie,idx); else await vault.create(ip,idx);
-    new Notice(`概念网络已更新：${concepts.size} 个概念 / ${tri.size} 条关系`);
+    // 回收：带标记但已不在概念集合里的页面
+    let movedOld=0;
+    const oldDir=lib+'/旧概念';
+    try{
+      for(const f of vault.getMarkdownFiles()){
+        if(!f.path.startsWith(dir+'/')) continue;
+        if(f.extension!=='md') continue;
+        const base=f.basename;
+        if([...concepts].some(c=>safeName(c)===base)) continue;
+        const txt=await vault.cachedRead(f);
+        if(!txt.includes('generated_by: three-d-concept-map')) continue;
+        if(!(await vault.adapter.exists(oldDir))) await vault.createFolder(oldDir);
+        await vault.rename(f, oldDir+'/'+f.name);
+        movedOld++;
+      }
+    }catch(e){}
+    n0.hide();
+    new Notice(`概念网络已更新：${concepts.size} 个概念 / ${tri.size} 条关系`+(skippedUser?` · 跳过 ${skippedUser} 个同名用户文件`:'')+(movedOld?` · 归档 ${movedOld} 个旧概念页`:''));
   }
 }
 class CMSettingTab extends PluginSettingTab{
