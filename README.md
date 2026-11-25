@@ -5,7 +5,7 @@ Write a `cmap` block, get a graph you can spin, zoom and click. Or press one but
 
 **把笔记变成立体概念网络。** 写一段 `cmap` 代码块，就能得到可旋转、可缩放、可点开的概念图；也可以一键扫描全库，自动生成概念页与索引。
 
-![demo](assets/demo.gif)
+![demo](assets/demo.png)
 
 ---
 
